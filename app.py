@@ -1,8 +1,8 @@
-from flask import Flask , request , jsonify
+from flask import Flask , request , jsonify , url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
-
+import pytest
 #init app
 
 app=Flask(__name__)
@@ -23,7 +23,10 @@ db=SQLAlchemy(app)
 
 ma=Marshmallow(app)
 
+# writing test cases
 
+app.testing = True
+client = app.test_client()
 
 #Creating models 
 
@@ -71,9 +74,14 @@ def add_post():
     return single_product_schema.jsonify(new_product)
 
 
+
+@app.route('/')
+def index():
+    return 'hello Qamar'
+
 # getting all items
 
-@app.route('/get-all/' , methods=['GET'])
+@app.route('/get-all' , methods=['GET'])
 
 def get_all_items():
 
@@ -137,3 +145,11 @@ def update_item(id):
 # Running the server
 if __name__== '__main__':
     app.run(debug=True)
+
+
+
+# tests
+
+
+def test_myview(client):
+    assert client.get(url_for('get-all')).status_code == 200
